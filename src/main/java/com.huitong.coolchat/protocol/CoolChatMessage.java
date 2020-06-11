@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class CoolChatProtocol {
+public class CoolChatMessage {
 
     private int length;
     private byte[] content;

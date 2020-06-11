@@ -1,6 +1,8 @@
 package com.huitong.coolchat.server;
 
 import com.huitong.coolchat.handler.CoolChatServerHandler;
+import com.huitong.coolchat.protocol.CoolChatDecoder;
+import com.huitong.coolchat.protocol.CoolChatEncoder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -29,8 +31,8 @@ public class CoolChatServer {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
-                            socketChannel.pipeline().addLast("encoder", new StringEncoder());
-                            socketChannel.pipeline().addLast("decoder", new StringDecoder());
+                            socketChannel.pipeline().addLast("encoder", new CoolChatEncoder());
+                            socketChannel.pipeline().addLast("decoder", new CoolChatDecoder());
                             socketChannel.pipeline().addLast(new CoolChatServerHandler());
                         }
                     });

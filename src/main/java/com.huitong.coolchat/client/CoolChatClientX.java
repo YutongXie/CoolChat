@@ -13,10 +13,8 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Scanner;
-
 @Slf4j
-public class CoolChatClient2 {
+public class CoolChatClientX {
 
     public void connect(String hostName, int port) throws InterruptedException {
         Bootstrap bootstrap = new Bootstrap();
@@ -35,9 +33,8 @@ public class CoolChatClient2 {
                     });
 
             ChannelFuture channelFuture = bootstrap.connect(hostName, port).sync();
-            Scanner scanner = new Scanner(System.in);
-            while (true) {
-                String message = scanner.nextLine();
+            for (int i = 0; i < 50; i++) {
+                String message = "Client X message -" + i;
                 CoolChatMessage msg = new CoolChatMessage();
                 msg.setLength(message.getBytes().length);
                 msg.setContent(message.getBytes());
@@ -49,7 +46,7 @@ public class CoolChatClient2 {
     }
 
     public static void main(String[] args) {
-        CoolChatClient2 client = new CoolChatClient2();
+        CoolChatClientX client = new CoolChatClientX();
         try {
             client.connect("localhost", 9009);
         } catch (InterruptedException e) {

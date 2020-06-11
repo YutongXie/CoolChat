@@ -1,16 +1,16 @@
 package com.huitong.coolchat.client;
 
 import com.huitong.coolchat.handler.CoolChatClientHandler;
+import com.huitong.coolchat.protocol.CoolChatDecoder;
+import com.huitong.coolchat.protocol.CoolChatEncoder;
+import com.huitong.coolchat.protocol.CoolChatMessage;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Scanner;
@@ -27,8 +27,8 @@ public class CoolChatClient1 {
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
-                            socketChannel.pipeline().addLast("decoder", new StringDecoder());
-                            socketChannel.pipeline().addLast("encoder", new StringEncoder());
+                            socketChannel.pipeline().addLast("decoder", new CoolChatDecoder());
+                            socketChannel.pipeline().addLast("encoder", new CoolChatEncoder());
                             socketChannel.pipeline().addLast(new CoolChatClientHandler());
                         }
                     });
@@ -37,7 +37,10 @@ public class CoolChatClient1 {
             Scanner scanner = new Scanner(System.in);
             while (true) {
                 String message = scanner.nextLine();
-                channelFuture.channel().writeAndFlush(message);
+                CoolChatMessage msg = new CoolChatMessage();
+                msg.setLength(message.getBytes().length);
+                msg.setContent(message.getBytes());
+                channelFuture.channel().writeAndFlush(msg);
             }
         } finally {
             group.shutdownGracefully();
