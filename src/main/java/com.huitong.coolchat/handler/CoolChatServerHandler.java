@@ -1,6 +1,8 @@
 package com.huitong.coolchat.handler;
 
 import com.huitong.coolchat.protocol.CoolChatMessage;
+import com.huitong.coolchat.redis.RedisClient;
+import com.huitong.coolchat.service.ChatHistoryService;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -17,13 +19,15 @@ import java.util.Date;
 public class CoolChatServerHandler extends SimpleChannelInboundHandler<CoolChatMessage> {
 
     private static final ChannelGroup group = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
-    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:MM:DD");
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:MM:SS");
+    private ChatHistoryService chatHistoryService = new ChatHistoryService();
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, CoolChatMessage msg) throws Exception {
         Channel fromChannel = channelHandlerContext.channel();
         int length = msg.getLength();
         String content = new String(msg.getContent(), CharsetUtil.UTF_8);
         log.info("Server received message from client- length:{}, content:{}", length, content);
+        chatHistoryService.recordMessage("[From" + fromChannel.remoteAddress() + "]-" + content);
         group.forEach(channel -> {
             if(channel == fromChannel) {
                 CoolChatMessage newMsg = new CoolChatMessage();
@@ -37,6 +41,10 @@ public class CoolChatServerHandler extends SimpleChannelInboundHandler<CoolChatM
                 channel.pipeline().writeAndFlush(newMsg);
             }
         });
+
+        if("extract".equalsIgnoreCase(content)) {
+            chatHistoryService.extractAllMessage();
+        }
     }
 
     @Override
@@ -64,4 +72,5 @@ public class CoolChatServerHandler extends SimpleChannelInboundHandler<CoolChatM
         });
         group.remove(quitChannel);
     }
+
 }
