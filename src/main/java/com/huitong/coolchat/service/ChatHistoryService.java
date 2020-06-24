@@ -5,6 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.Jedis;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -14,7 +17,7 @@ public class ChatHistoryService {
     private RedisClient redisClient = new RedisClient();
     private SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd-HHMM");
     public void recordMessage(String msg) {
-        redisClient.getRedisClient().lpush("chatMsg-" + format.format(new Date()), msg);
+        redisClient.getRedisClient().lpush("chatMsg-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHMM")), msg);
     }
 
     public void extractAllMessage() {
